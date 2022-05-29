@@ -3,6 +3,7 @@ import sys # sys enables use of CLI arguments
 
 READ_MODE = "r"
 
+
 def main() -> None:
     
     file_name = check_args()                                        # validate CLI inputs and return file name

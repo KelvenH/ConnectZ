@@ -15,10 +15,10 @@ To run;
 | Code | Reason | Description | Additional Checks / Notes | Status | Function Covering Requirement |
 | ---- | ------ | ----------- | ------------------------- | ------ | ----------------------------- |
 | 0 | Draw | This happens when every possible space in the frame was filled with a counter, but neither player achieved a line of the required length. | - | Not Started | - |
-| 1 | Win for player 1 | The first player achieved a line of the required length. | - | Not Started | - |
-| 2 | Win for player 2 | The second player achieved a line of the required length. | - | Not Started | - |
+| 1 | Win for player 1 | The first player achieved a line of the required length. | <ul><li>Row</li><li>Column</li><li>Diagonal</li></ul> | In Progress (row complete) | <ul><li>check_row_win</li><li>TBC</li><li>TBC</li></ul> |
+| 2 | Win for player 2 | The second player achieved a line of the required length. | Per player1 win | In Progress (row complete) | <ul><li>check_row_win</li><li>TBC</li><li>TBC</li></ul> |
 | 3 | Incomplete | The file conforms to the format and contains only legal moves, but the game is neither won nor drawn by either player and there are remaining available moves in the frame. Note that a file with only a dimensions line constitues an incomplete game. | - | Not Started | - |
-| 4 | Illegal continue | All moves are valid in all other respects but the game has already been won on a previous turn so continued play is considered an illegal move. | - | Not Started | - |
+| 4 | Illegal continue | All moves are valid in all other respects but the game has already been won on a previous turn so continued play is considered an illegal move. | - | :white_check_mark: | check_last_move |
 | 5 | Illegal row | The file conforms to the format and all moves are for legal columns but the move is for a column that is already full due to previous moves. | - requires tracking of column usage | :white_check_mark: | build_game |
 | 6 | Illegal column | The file conforms to the format but contains a move for a column that is out side the dimensions of the board. i.e. the column selected is greater than X | - | :white_check_mark: | build_game |
 | 7 | Illegal game | The file conforms to the format but the dimensions describe a game that can never be won. | Min win exceeds column and row dimensions | :white_check_mark: |  validate_content |
