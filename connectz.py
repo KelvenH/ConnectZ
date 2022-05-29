@@ -5,11 +5,13 @@ READ_MODE = "r"
 
 def main() -> None:
     
-    file_name = check_args()                                # validate CLI inputs and return file name
-    game_inputs = read_file(file_name)                      # validate file content and return game data
-    game_grid, cols, rows, target = build_game(game_inputs) # populate 'grid ref' view of game
-    check_result(game_grid, cols, rows, target)             # check for invalid games and win/draw outcomes
-    # clear lists for next game                             # clear lists to ensure not impairing subsequent runs
+    file_name = check_args()                                        # validate CLI inputs and return file name
+    game_inputs = read_file(file_name)                              # validate file content and return game data
+    game_grid, cols, rows, target = build_game(game_inputs)         # check for invalid games & populate 'grid ref' view of game
+    player_A_moves, player_B_moves = create_player_moves(game_grid) # create seperate player moves
+    # check results & determine win/draw outcomes
+    check_row_win(player_A_moves, player_B_moves, rows)                    
+    # clear lists for next game                                     # clear lists to ensure not impairing subsequent runs
 
 
 def check_args():
@@ -125,13 +127,32 @@ def build_game(game_inputs):
     return (game_grid, cols, rows, target)
 
 
-def check_result(game_grid, cols, rows, target):
+def create_player_moves(game_grid):
     print(game_grid)
-    print(cols)
-    print(rows)
-    print(target)
-    # win patterns
-    # horizontal playerid + same row/y value + in sequence (x target)
+    
+    # extract player A moves
+    player_A = "A"
+    player_A_moves = [move for move in game_grid if player_A in move]
+    print(player_A_moves)
+
+    # extract player B moves
+    player_B = "B"
+    player_B_moves = [move for move in game_grid if player_B in move]
+    print(player_B_moves)
+
+    return (player_A_moves, player_B_moves)
+
+
+def check_row_win(player_A_moves, player_B_moves, rows):
+    print(player_A_moves)
+    print(player_B_moves)
+    max_rows = rows
+    row_counter = 1
+    for x in range(max_rows):
+        print(row_counter)
+        row_counter += 1
+        #search_term = "Y" + str(row_counter) 
+        #print(search_term)
 
 
 if __name__ == '__main__':
