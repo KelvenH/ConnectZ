@@ -62,7 +62,7 @@ def validate_content(game_file):
         # Create list of integer values removing space separation
         file_values = [int(value) for value in content.split()]  
     
-    except:
+    except ValueError:
         print(8) # Non-digit value encountered
         exit()
     
@@ -90,15 +90,14 @@ def build_game(game_inputs):
     game_grid = []
     col_tracker = []              
 
-    for turn in game_inputs:
-        
-        # Player A / B identifier
-        if turn % 2:
+    for index, turn in enumerate(game_inputs):
+
+        if not index % 2:
             player_id = "A"
         
-        else: 
+        else:
             player_id = "B"
-
+        
         # Identify illegal column 
         if turn > cols:
             print(6) # col outside dimensions
@@ -131,6 +130,9 @@ def check_result(game_grid, cols, rows, target):
     print(cols)
     print(rows)
     print(target)
+    # win patterns
+    # horizontal playerid + same row/y value + in sequence (x target)
+
 
 if __name__ == '__main__':
     main()
