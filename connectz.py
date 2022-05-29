@@ -1,11 +1,13 @@
-# sys enables use of CLI arguments
-import sys
+import sys # sys enables use of CLI arguments
+
+
 READ_MODE = "r"
 
 def main() -> None:
+    
     file_name = check_args()
-    print(file_name)                                              # temp line - REMOVE in final submission
-    read_file(file_name)
+    game_inputs = read_file(file_name)
+    build_game(game_inputs)
 
 
 def check_args():
@@ -16,43 +18,8 @@ def check_args():
     else:
         """ Return filename if check passed """
         file_name = sys.argv[1]
-        print(f"args check passed filename = {file_name}")         # temp line - REMOVE in final submission
+        # print(f"args check passed filename = {file_name}")        
         return file_name
-
-
-def validate_content(game_file):
-    """ Check file contents for invalid inputs / dimensions """
-    
-    # Identify non-digit values
-    content = game_file.read()
-    file_values = []
-    try:
-        # Create list of integer values removing space separation
-        file_values = [int(value) for value in content.split()]  
-       
-    except:
-        print("8") # Non-digit value encountered
-        exit()
-    
-    # Check for valid integers
-    for value in file_values:
-        if value <= 0:
-            print("8")  # Negative or zero value encountered
-            exit()
-    
-    # Check game initialser row
-    setup_line = content.split('\n', 1)[0]  # read 1st line of file
-    setup_values = setup_line.split()       # convert space-separated string to a list
-    
-    # Invalid number of dimension values in file to initialize game
-    if len(setup_values) != 3:
-        print("8")
-        exit()
-
-    # Impossible game as insufficient columns / rows to meet win requirement
-    elif setup_values[2] > setup_values[0] or setup_values[2] > setup_values[1]:
-        print("7")
-        exit()
 
 
 def read_file(file_name):
@@ -66,13 +33,54 @@ def read_file(file_name):
             print("9") # Invalid file type provided
             exit()
 
-        validate_content(game_file) 
-
+        valid_inputs = validate_content(game_file)
+        
         game_file.close()
+        return valid_inputs
 
     except FileNotFoundError:
         print("9") # File not found
         exit()
+
+
+def validate_content(game_file):
+    """ Check file contents for invalid inputs / dimensions """
+    content = game_file.read()
+
+    # Check game initialser row
+    setup_line = content.split('\n', 1)[0]  # read 1st line of file
+    setup_values = setup_line.split()       # convert space-separated string to a list
+    
+    # Invalid number of dimension values in file to initialize game
+    if len(setup_values) != 3:
+        print("8")
+        exit()
+    
+    try:
+        # Create list of integer values removing space separation
+        file_values = [int(value) for value in content.split()]  
+    
+    except:
+        print("8") # Non-digit value encountered
+        exit()
+    
+    # Check for valid integers
+    for value in file_values:
+        if value <= 0:
+            print("8")  # Negative or zero value encountered
+            exit()
+    
+    # Impossible game as insufficient columns / rows to meet win requirement
+    if setup_values[2] > setup_values[0] or setup_values[2] > setup_values[1]:
+        print("7")
+        exit()
+    
+    return file_values
+
+
+def build_game(game_inputs):
+
+    print(f"game inputs E: {game_inputs}")
 
 
 if __name__ == '__main__':
