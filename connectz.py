@@ -5,9 +5,11 @@ READ_MODE = "r"
 
 def main() -> None:
     
-    file_name = check_args()
-    game_inputs = read_file(file_name)
-    build_game(game_inputs)
+    file_name = check_args()                # validate CLI inputs and return file name
+    game_inputs = read_file(file_name)      # validate file content and return game data
+    build_game(game_inputs)                 # populate 'grid ref' view of game
+    # check result inluding valid game      # check for invalid games and win/draw outcomes
+    # clear lists for next game             # clear lists to ensure not impairing subsequent runs
 
 
 def check_args():
@@ -79,8 +81,42 @@ def validate_content(game_file):
 
 
 def build_game(game_inputs):
+    """ Obtain game dimensions and generate 'grid-ref' for each player turn """
 
     print(f"game inputs E: {game_inputs}")
+    cols = game_inputs[0]
+    rows = game_inputs[1]
+    target = game_inputs[2]
+    del game_inputs[0:3]        # remove game dimension values retaining only player moves
+    print(f"game inputs F: {game_inputs}")
+    
+    game_grid = []
+    col_tracker = []              
+
+    for turn in game_inputs:
+        
+        # Player A / B identifier
+        if turn % 2:
+            player_id = "A"
+        
+        else: 
+            player_id = "B"
+
+        # Column identifier
+        col = "X"
+        turn_col_id = col + str(turn)
+        col_tracker.append(turn)    # add to col tracker to identify row
+
+        # Row identifier
+        row = "Y"
+        turn_row_id = row + str(col_tracker.count(turn))
+
+        # Generate turn id and add to game grid
+        turn_id = player_id + turn_col_id + turn_row_id
+        game_grid.append(turn_id)
+    
+    print(game_grid)
+    return (game_grid, cols, rows, target)
 
 
 if __name__ == '__main__':
