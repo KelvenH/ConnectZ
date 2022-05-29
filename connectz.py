@@ -5,11 +5,11 @@ READ_MODE = "r"
 
 def main() -> None:
     
-    file_name = check_args()                # validate CLI inputs and return file name
-    game_inputs = read_file(file_name)      # validate file content and return game data
-    build_game(game_inputs)                 # populate 'grid ref' view of game
-    # check result inluding valid game      # check for invalid games and win/draw outcomes
-    # clear lists for next game             # clear lists to ensure not impairing subsequent runs
+    file_name = check_args()                                # validate CLI inputs and return file name
+    game_inputs = read_file(file_name)                      # validate file content and return game data
+    game_grid, cols, rows, target = build_game(game_inputs) # populate 'grid ref' view of game
+    check_result(game_grid, cols, rows, target)             # check for invalid games and win/draw outcomes
+    # clear lists for next game                             # clear lists to ensure not impairing subsequent runs
 
 
 def check_args():
@@ -32,7 +32,7 @@ def read_file(file_name):
         """ check correct file type """
         file_ext = file_name.split('.')[1]
         if file_ext != "txt":
-            print("9") # Invalid file type provided
+            print(9) # Invalid file type provided
             exit()
 
         valid_inputs = validate_content(game_file)
@@ -41,7 +41,7 @@ def read_file(file_name):
         return valid_inputs
 
     except FileNotFoundError:
-        print("9") # File not found
+        print(9) # File not found
         exit()
 
 
@@ -55,7 +55,7 @@ def validate_content(game_file):
     
     # Invalid number of dimension values in file to initialize game
     if len(setup_values) != 3:
-        print("8")
+        print(8)
         exit()
     
     try:
@@ -63,18 +63,18 @@ def validate_content(game_file):
         file_values = [int(value) for value in content.split()]  
     
     except:
-        print("8") # Non-digit value encountered
+        print(8) # Non-digit value encountered
         exit()
     
     # Check for valid integers
     for value in file_values:
         if value <= 0:
-            print("8")  # Negative or zero value encountered
+            print(8)  # Negative or zero value encountered
             exit()
     
     # Impossible game as insufficient columns / rows to meet win requirement
     if setup_values[2] > setup_values[0] or setup_values[2] > setup_values[1]:
-        print("7")
+        print(7)
         exit()
     
     return file_values
@@ -82,13 +82,10 @@ def validate_content(game_file):
 
 def build_game(game_inputs):
     """ Obtain game dimensions and generate 'grid-ref' for each player turn """
-
-    print(f"game inputs E: {game_inputs}")
     cols = game_inputs[0]
     rows = game_inputs[1]
     target = game_inputs[2]
     del game_inputs[0:3]        # remove game dimension values retaining only player moves
-    print(f"game inputs F: {game_inputs}")
     
     game_grid = []
     col_tracker = []              
@@ -102,10 +99,20 @@ def build_game(game_inputs):
         else: 
             player_id = "B"
 
+        # Identify illegal column 
+        if turn > cols:
+            print(6) # col outside dimensions
+            exit()
+
         # Column identifier
         col = "X"
         turn_col_id = col + str(turn)
         col_tracker.append(turn)    # add to col tracker to identify row
+
+        # Identify illegal row (i.e. column already filled)
+        if col_tracker.count(turn) > rows:
+            print(5) # row height exceeded
+            exit()
 
         # Row identifier
         row = "Y"
@@ -118,6 +125,12 @@ def build_game(game_inputs):
     print(game_grid)
     return (game_grid, cols, rows, target)
 
+
+def check_result(game_grid, cols, rows, target):
+    print(game_grid)
+    print(cols)
+    print(rows)
+    print(target)
 
 if __name__ == '__main__':
     main()
