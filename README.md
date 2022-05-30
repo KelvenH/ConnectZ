@@ -15,7 +15,7 @@ To run;
 | Code | Reason | Description | Additional Checks / Notes | Status | Function Covering Requirement |
 | ---- | ------ | ----------- | ------------------------- | ------ | ----------------------------- |
 | 0 | Draw | This happens when every possible space in the frame was filled with a counter, but neither player achieved a line of the required length. | - | Not Started | - |
-| 1 | Win for player 1 | The first player achieved a line of the required length. | <ul><li>Row</li><li>Column</li><li>Diagonal</li></ul> | In Progress (row complete) | <ul><li>check_row_win</li><li>TBC</li><li>TBC</li></ul> |
+| 1 | Win for player 1 | The first player achieved a line of the required length. | <ul><li>Row</li><li>Column</li><li>Diagonal</li></ul> | In Progress (row & col complete) | <ul><li>check_row_win</li><li>check_row_win</li><li>check_consecutive</li></ul> |
 | 2 | Win for player 2 | The second player achieved a line of the required length. | Per player1 win | In Progress (row complete) | <ul><li>check_row_win</li><li>TBC</li><li>TBC</li></ul> |
 | 3 | Incomplete | The file conforms to the format and contains only legal moves, but the game is neither won nor drawn by either player and there are remaining available moves in the frame. Note that a file with only a dimensions line constitues an incomplete game. | - | Not Started | - |
 | 4 | Illegal continue | All moves are valid in all other respects but the game has already been won on a previous turn so continued play is considered an illegal move. | - | :white_check_mark: | check_last_move |
@@ -37,8 +37,8 @@ To run;
 
 ## Specific Challenges:
 
-- Taking argument (filename) from CLI & reading content (see acknowledgment below for guidance used)
-- Defining approach to assess outcome (turn by turn vs final status) - i.e. factoring in 'illegal continue' as all other requirements can be determined by  assessing after all moves performed.
+- Taking argument (filename) from CLI & reading content (see acknowledgment below for guidance used).
+- Defining approach to assess outcome (turn by turn vs final status).
 
 
 ## Acknowledgements:

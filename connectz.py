@@ -1,5 +1,5 @@
 import sys # sys enables use of CLI arguments
-
+import re
 
 READ_MODE = "r"
 
@@ -11,7 +11,11 @@ def main() -> None:
     game_grid, cols, rows, target, last_move_id = build_game(game_inputs) # check for invalid games & populate 'grid ref' view of game
     player_A_moves, player_B_moves = create_player_moves(game_grid) # create seperate player moves
     # check results & determine win/draw outcomes
-    check_row_win(player_A_moves, player_B_moves, rows, target, last_move_id)                    
+    check_row_win(player_A_moves, player_B_moves, rows, target, last_move_id)
+    check_col_win(player_A_moves, player_B_moves, cols, target, last_move_id)
+    # check_diag_win
+    # check_draw
+    # check_incomplete                    
    
 
 def check_args():
@@ -82,7 +86,7 @@ def validate_content(game_file):
             exit()
     
     # Impossible game as insufficient columns / rows to meet win requirement
-    if setup_values[2] > setup_values[0] or setup_values[2] > setup_values[1]:
+    if setup_values[2] > setup_values[0] and setup_values[2] > setup_values[1]:
         print(7)
         exit()
     
@@ -160,10 +164,24 @@ def check_row_win(player_A_moves, player_B_moves, rows, target, last_move_id):
         search_term = "Y" + str(row_counter_A)
         row_slice_A = [id for id in player_A_moves if search_term in id]
         row_counter_A += 1
+        
+        # Identify possible win (number of moves in row meets win / target) 
         if len(row_slice_A) >= target:
-            player="A"
-            last_move = row_slice_A[-1]
-            check_last_move(player, last_move, last_move_id)
+            check_row_A = []
+            for id in row_slice_A:
+                pattern = "X(.*?)Y"
+                value_X = re.search(pattern, id).group(1)
+                check_row_A.append(int(value_X))
+
+            # Check if moves are in sequence
+            check_type = "row" 
+            last_winning_move = check_consecutive(check_row_A, row_slice_A, target, check_type)
+            if last_winning_move is not None:
+
+                # Check if last move (in winning row) was last move of game
+                player="A"
+                last_move = last_winning_move
+                check_last_move(player, last_move, last_move_id)
 
     # Check player B rows
     row_counter_B = 1
@@ -171,10 +189,128 @@ def check_row_win(player_A_moves, player_B_moves, rows, target, last_move_id):
         search_term = "Y" + str(row_counter_B)
         row_slice_B = [id for id in player_B_moves if search_term in id]
         row_counter_B += 1
+
+         # Identify possible win (number of moves in row meets win / target) 
         if len(row_slice_B) >= target:
-            player="B"
-            last_move = row_slice_B[-1]
-            check_last_move(player, last_move, last_move_id)
+            check_row_B = []
+            for id in row_slice_B:
+                pattern = "X(.*?)Y"
+                value_X = re.search(pattern, id).group(1)
+                check_row_B.append(int(value_X))
+
+            # Check if moves are in sequence
+            check_type = "row" 
+            if check_consecutive(check_row_B, row_slice_B, target, check_type):
+
+                # Check if last move (in winning row) was last move of game
+                player="B"
+                last_move = row_slice_B[-1]
+                check_last_move(player, last_move, last_move_id)
+
+
+def check_col_win(player_A_moves, player_B_moves, cols, target, last_move_id):
+    """ Check for winning columns within player moves"""
+    max_cols = cols
+    
+    # Check player A cols
+    col_counter_A = 1
+    for x in range(max_cols):
+        search_term = "X" + str(col_counter_A)
+        col_slice_A = [id for id in player_A_moves if search_term in id]
+        col_counter_A += 1
+
+        # Identify possible win (number of moves in col meets win / target)
+        if len(col_slice_A) >= target:
+            check_col_A = []
+            for id in col_slice_A:
+                value_Y = id.split("Y", 1)[1]
+                check_col_A.append(int(value_Y))
+            
+            # Check if moves are in sequence
+            check_type = "col"
+            if check_consecutive(check_col_A, col_slice_A, target, check_type):
+
+                # Check if last move (in winning col) was last move of game
+                player="A"
+                last_move = col_slice_A[-1]
+                check_last_move(player, last_move, last_move_id)
+
+    # Check player B cols
+    col_counter_B = 1
+    for x in range(max_cols):
+        search_term = "X" + str(col_counter_B)
+        col_slice_B = [id for id in player_B_moves if search_term in id]
+        col_counter_B += 1
+
+        # Identify possible win (number of moves in col meets win / target)
+        if len(col_slice_B) >= target:
+            check_col_B = []
+            for id in col_slice_B:
+                value_Y = id.split("Y", 1)[1]
+                check_col_B.append(int(value_Y))
+            
+            # Check if moves are in sequence
+            check_type = "col"
+            if check_consecutive(check_col_B, col_slice_B, target, check_type):
+
+                # Check if last move (in winning col) was last move of game
+                player="B"
+                last_move = col_slice_B[-1]
+                check_last_move(player, last_move, last_move_id)
+
+
+def check_consecutive(values, values_orig, target, check_type):
+    """ Checks potential winning row / column to determine complete """
+    sorted_values = sorted(values)
+
+    # Calculate increments between values
+    current_score = 0
+    highest_score = 0
+    winning_nums = []
+    for i in range(len(sorted_values)-1):
+       
+        if sorted_values[i+1]-sorted_values[i] == 1:
+            current_score += 1
+
+            # log winning moves for later validation of illegal moves (only required for rows)
+            if check_type == "row":
+                if sorted_values[i] not in winning_nums:
+                    winning_nums.append(sorted_values[i])
+                    if sorted_values[i+1] not in winning_nums:
+                        winning_nums.append(sorted_values[i+1])
+
+            if current_score > highest_score:
+                highest_score = current_score
+                
+        else:
+            current_score = 0    
+    
+    if highest_score + 1 >= target: # increment to highest score to account for last num compared
+        
+        if check_type == "col":
+            return True
+        
+        # row wins require reverse search for winning moves against unsorted values (i.e. ordered by game move)
+        elif check_type =="row":
+            found_winning_move = False
+            for i in reversed(values):
+                if found_winning_move == False:
+                    if i in winning_nums:
+                        index = values.index(i)
+                        found_winning_move = True
+                        # The index position in value list will be the same in the orig values (pre-regex cleanse)
+                        last_winning_move = values_orig[index]
+
+            return last_winning_move
+    
+    else:
+        if check_type == "col":
+            return False
+
+        elif check_type == "row":
+            last_winning_move = None
+
+            return last_winning_move
 
 
 def check_last_move(player, last_move, last_move_id):
