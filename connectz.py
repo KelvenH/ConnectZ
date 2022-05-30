@@ -15,8 +15,7 @@ def main() -> None:
     check_col_win(player_A_moves, player_B_moves, cols, target, last_move_id)
     # check_diag_win
     check_draw_or_incomplete(game_grid, rows, cols)
-                     
-   
+                        
 
 def check_args():
     """ Check number of arguments provided in CLI  """
@@ -338,6 +337,7 @@ def check_draw_or_incomplete(game_grid, rows, cols):
     if total_moves < max_moves:
         print(3) # Incomplete - moves remaining
         exit()
+
 
 def check_last_move(player, last_move, last_move_id):
     """ Check players last move from wining line against last turn played """
