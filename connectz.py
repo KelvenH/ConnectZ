@@ -14,8 +14,8 @@ def main() -> None:
     check_row_win(player_A_moves, player_B_moves, rows, target, last_move_id)
     check_col_win(player_A_moves, player_B_moves, cols, target, last_move_id)
     # check_diag_win
-    # check_draw
-    # check_incomplete                    
+    check_draw_or_incomplete(game_grid, rows, cols)
+                     
    
 
 def check_args():
@@ -89,7 +89,12 @@ def validate_content(game_file):
     if setup_values[2] > setup_values[0] and setup_values[2] > setup_values[1]:
         print(7)
         exit()
-    
+
+    # Incomplete - insufficient data in file
+    if len(file_values) < 4:
+        print(3) # Incomplete (file only holds dimension line)
+        exit()
+        
     return file_values
 
 
@@ -103,39 +108,45 @@ def build_game(game_inputs):
     game_grid = []
     col_tracker = []              
 
-    for index, turn in enumerate(game_inputs):
+    try:
+        for index, turn in enumerate(game_inputs):
 
-        if not index % 2:
-            player_id = "A"
+            if not index % 2:
+                player_id = "A"
+            
+            else:
+                player_id = "B"
+            
+            # Identify illegal column 
+            if turn > cols:
+                print(6) # col outside dimensions
+                exit()
+
+            # Column identifier
+            col = "X"
+            turn_col_id = col + str(turn)
+            col_tracker.append(turn)    # add to col tracker to identify row
+
+            # Identify illegal row (i.e. column already filled)
+            if col_tracker.count(turn) > rows:
+                print(5) # row height exceeded
+                exit()
+
+            # Row identifier
+            row = "Y"
+            turn_row_id = row + str(col_tracker.count(turn))
+
+            # Generate turn id and add to game grid
+            turn_id = player_id + turn_col_id + turn_row_id
+            game_grid.append(turn_id)
         
-        else:
-            player_id = "B"
-        
-        # Identify illegal column 
-        if turn > cols:
-            print(6) # col outside dimensions
-            exit()
-
-        # Column identifier
-        col = "X"
-        turn_col_id = col + str(turn)
-        col_tracker.append(turn)    # add to col tracker to identify row
-
-        # Identify illegal row (i.e. column already filled)
-        if col_tracker.count(turn) > rows:
-            print(5) # row height exceeded
-            exit()
-
-        # Row identifier
-        row = "Y"
-        turn_row_id = row + str(col_tracker.count(turn))
-
-        # Generate turn id and add to game grid
-        turn_id = player_id + turn_col_id + turn_row_id
-        game_grid.append(turn_id)
+            # Identify last move of game
+            last_move_id = game_grid[-1]
     
-        # Identify last move of game
-        last_move_id = game_grid[-1]
+    # This check may be superfluous but remained in case unconsidered scenario encountered
+    except ValueError:
+        print(3) # Incomplete - insufficient data to build game
+        exit()
 
     return (game_grid, cols, rows, target, last_move_id)
 
@@ -312,6 +323,21 @@ def check_consecutive(values, values_orig, target, check_type):
 
             return last_winning_move
 
+
+def check_draw_or_incomplete(game_grid, rows, cols):
+    """ Identify if moves remain available (incomplete) or not available (draw) """
+    max_moves = rows * cols
+    total_moves = len(game_grid)
+    
+    if total_moves == max_moves:
+        print(0) # Draw - no moves remaining
+        exit()
+    
+    # Note this does not check whether a win or draw is possible from the moves which remain
+    # Note - until diagonal_win implemented this will also include those wins
+    if total_moves < max_moves:
+        print(3) # Incomplete - moves remaining
+        exit()
 
 def check_last_move(player, last_move, last_move_id):
     """ Check players last move from wining line against last turn played """
