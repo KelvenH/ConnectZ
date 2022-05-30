@@ -1,5 +1,5 @@
 import sys # sys enables use of CLI arguments
-import re
+import re # re used for regular expression searches
 
 READ_MODE = "r"
 
@@ -13,7 +13,7 @@ def main() -> None:
     # check results & determine win/draw outcomes
     check_row_win(player_A_moves, player_B_moves, rows, target, last_move_id)
     check_col_win(player_A_moves, player_B_moves, cols, target, last_move_id)
-    # check_diag_win
+    check_diag_win(player_A_moves, player_B_moves, cols, rows, target, last_move_id)
     check_draw_or_incomplete(game_grid, rows, cols)
                         
 
@@ -167,20 +167,20 @@ def create_player_moves(game_grid):
 def check_row_win(player_A_moves, player_B_moves, rows, target, last_move_id):
     """ Check for winning rows within player moves"""
     max_rows = rows
-
+    print("checking for row win")
     # Check player A rows
     row_counter_A = 1
     for x in range(max_rows):
         search_term = "Y" + str(row_counter_A)
-        row_slice_A = [id for id in player_A_moves if search_term in id]
+        row_slice_A = [val for val in player_A_moves if search_term in val]
         row_counter_A += 1
         
         # Identify possible win (number of moves in row meets win / target) 
         if len(row_slice_A) >= target:
             check_row_A = []
-            for id in row_slice_A:
+            for val in row_slice_A:
                 pattern = "X(.*?)Y"
-                value_X = re.search(pattern, id).group(1)
+                value_X = re.search(pattern, val).group(1)
                 check_row_A.append(int(value_X))
 
             # Check if moves are in sequence
@@ -197,15 +197,15 @@ def check_row_win(player_A_moves, player_B_moves, rows, target, last_move_id):
     row_counter_B = 1
     for x in range(max_rows):
         search_term = "Y" + str(row_counter_B)
-        row_slice_B = [id for id in player_B_moves if search_term in id]
+        row_slice_B = [val for val in player_B_moves if search_term in val]
         row_counter_B += 1
 
          # Identify possible win (number of moves in row meets win / target) 
         if len(row_slice_B) >= target:
             check_row_B = []
-            for id in row_slice_B:
+            for val in row_slice_B:
                 pattern = "X(.*?)Y"
-                value_X = re.search(pattern, id).group(1)
+                value_X = re.search(pattern, val).group(1)
                 check_row_B.append(int(value_X))
 
             # Check if moves are in sequence
@@ -221,19 +221,19 @@ def check_row_win(player_A_moves, player_B_moves, rows, target, last_move_id):
 def check_col_win(player_A_moves, player_B_moves, cols, target, last_move_id):
     """ Check for winning columns within player moves"""
     max_cols = cols
-    
+    print("checking for col win")
     # Check player A cols
     col_counter_A = 1
     for x in range(max_cols):
         search_term = "X" + str(col_counter_A)
-        col_slice_A = [id for id in player_A_moves if search_term in id]
+        col_slice_A = [val for val in player_A_moves if search_term in val]
         col_counter_A += 1
 
         # Identify possible win (number of moves in col meets win / target)
         if len(col_slice_A) >= target:
             check_col_A = []
-            for id in col_slice_A:
-                value_Y = id.split("Y", 1)[1]
+            for val in col_slice_A:
+                value_Y = val.split("Y", 1)[1]
                 check_col_A.append(int(value_Y))
             
             # Check if moves are in sequence
@@ -249,14 +249,14 @@ def check_col_win(player_A_moves, player_B_moves, cols, target, last_move_id):
     col_counter_B = 1
     for x in range(max_cols):
         search_term = "X" + str(col_counter_B)
-        col_slice_B = [id for id in player_B_moves if search_term in id]
+        col_slice_B = [val for val in player_B_moves if search_term in val]
         col_counter_B += 1
 
         # Identify possible win (number of moves in col meets win / target)
         if len(col_slice_B) >= target:
             check_col_B = []
-            for id in col_slice_B:
-                value_Y = id.split("Y", 1)[1]
+            for val in col_slice_B:
+                value_Y = val.split("Y", 1)[1]
                 check_col_B.append(int(value_Y))
             
             # Check if moves are in sequence
@@ -269,10 +269,183 @@ def check_col_win(player_A_moves, player_B_moves, cols, target, last_move_id):
                 check_last_move(player, last_move, last_move_id)
 
 
+def check_diag_win(player_A_moves, player_B_moves, cols, rows, target, last_move_id):
+    """ Check for winning diagonal within player moves """
+    print("checking for diagonal win")
+    max_cols = cols
+    max_rows = rows
+    print(max_rows)
+    print(target)
+
+    
+    # Check Player A diagonal
+    row_counter_A = 1
+    diag_streak = 0
+
+    # Search row
+    for x in range(max_rows):
+        row_search_term = "Y" + str(row_counter_A)
+        print(f"row_search_term {row_search_term}")
+        row_slice_A = [val for val in player_A_moves if row_search_term in val]
+        print(f"row slice A{row_slice_A}")
+        
+        col_counter_A = 1   # Reset col counter inside loop to always start new row search from first col 
+        direction = "right" # Reset diagonal direction 
+        # Search only proceeds if moves in row
+        if len(row_slice_A) !=0:
+            print(f"row slice A not 0 = {row_slice_A}")
+            # Search for player cols within given row 
+            for y in range(max_cols):
+                col_search_term = "X" + str(col_counter_A)
+                print(f"col_search_term {col_search_term}")
+                col_in_row_slice_A = [val for val in row_slice_A if col_search_term in val]
+                print(f"col_in_row_slice_A ANY {col_in_row_slice_A}")
+                # Search only proceeds if cols in row
+                if len(col_in_row_slice_A) != 0:
+                    diag_streak += 1
+                    print(f"diag streak 1 = {diag_streak}") 
+                    print(f"col_in_row_slice_A Match Found {col_in_row_slice_A}")
+                    # While loop will continue whilst match in diagonal position (diag streak) and space remains to win
+                    while diag_streak != 0 and ((target - diag_streak) <= ((max_rows - row_counter_A) and max_cols - col_counter_A)):
+                        # move to next row 
+                        row_counter_A += 1
+                        print(row_counter_A)
+                        next_row_search_term = "Y" + str(row_counter_A)
+                        print(f"next_row_search_term {next_row_search_term}")
+                        next_row_slice_A = [val for val in player_A_moves if next_row_search_term in val]
+                        print(f"next row slice A {next_row_slice_A}")
+                        # only proceed if a match in next row
+                        if len(next_row_slice_A) !=0:
+                            # move to next col within next row (i.e. diagonal from start of while loop)
+                            
+                            if direction == "right":
+                                col_counter_A +=1
+                            elif direction == "left":
+                                col_counter_A -=1
+
+                            next_col_search_term = "X" + str(col_counter_A)
+                            print(f"next_col_search_term {next_col_search_term}")
+                            next_col_in_next_row_slice_A = [val for val in next_row_slice_A if next_col_search_term in val]
+                            print(f"next_col_in_next_row_slice_A ANY {next_col_in_next_row_slice_A}")
+                            # diagonal match found, increase streak
+                            if len(next_col_in_next_row_slice_A) !=0:
+                                diag_streak +=1
+                                print(f"diag streak 1+ = {diag_streak}")
+                                # check if diagonal streak meets win requirement, check if last move
+                                if diag_streak == target:
+                                    print("checking player 1 win")
+                                    player="A"
+                                    last_move = next_col_in_next_row_slice_A[0]
+                                    check_last_move(player, last_move, last_move_id)
+                                # if match found but not win reverts to start of while loop
+                            
+                             # if no col match for right search switch direction and remain in while loop
+                             # and diag_streak is 1 to prevent zig zag matches
+                            elif direction == "right" and diag_streak == 1:
+                                direction = "left"
+                            
+                            # if no col match for left search reset diag streak and exit while loop
+                            else:
+                                diag_streak = 0 
+                                print(f"diag streak reset = {diag_streak}")
+
+                        # no match in next row, reset diag streak and exit while loop
+                        else:
+                            diag_streak = 0
+                            direction = "right"
+                            print(f"diag streak reset = {diag_streak}")
+                
+                # no col match in first row        
+                else:
+                    print(f"NO col_in_row_slice_A No Match Found {col_in_row_slice_A}")
+                    diag_streak = 0
+                    col_counter_A+=1 # col not found in row, loop on next col (within same row)
+        
+        # no match found in first row
+        else:
+            row_counter_A += 1 # no player matches in row slice move to next row
+
+     # Check Player B diagonal
+    row_counter_B = 1
+    diag_streak = 0
+
+    # Search row
+    for x in range(max_rows):
+        row_search_term = "Y" + str(row_counter_B)
+        print(f"row_search_term {row_search_term}")
+        row_slice_B = [val for val in player_B_moves if row_search_term in val]
+        print(f"row slice B{row_slice_B}")
+        
+        col_counter_B = 1   # Reset col counter inside loop to always start new row search from first col 
+
+        # Search only proceeds if moves in row
+        if len(row_slice_B) !=0:
+            print(f"row slice B not 0 = {row_slice_B}")
+            # Search for player cols within given row 
+            for y in range(max_cols):
+                col_search_term = "X" + str(col_counter_B)
+                print(f"col_search_term {col_search_term}")
+                col_in_row_slice_B = [val for val in row_slice_B if col_search_term in val]
+                print(f"col_in_row_slice_B ANY {col_in_row_slice_B}")
+                # Search only proceeds if cols in row
+                if len(col_in_row_slice_B) != 0:
+                    diag_streak += 1
+                    print(f"diag streak 1 = {diag_streak}") 
+                    print(f"col_in_row_slice_B Match Found {col_in_row_slice_B}")
+                    # While loop will continue whilst match in diagonal position (diag streak) and space remains to win
+                    while diag_streak != 0 and ((target - diag_streak) <= ((max_rows - row_counter_B) and max_cols - col_counter_B)):
+                        # move to next row
+                        row_counter_B += 1
+                        print(row_counter_B)
+                        next_row_search_term = "Y" + str(row_counter_B)
+                        print(f"next_row_search_term {next_row_search_term}")
+                        next_row_slice_B = [val for val in player_B_moves if next_row_search_term in val]
+                        print(f"next row slice B {next_row_slice_B}")
+                        # only proceed if a match in next row
+                        if len(next_row_slice_B) !=0:
+                            # move to next col within next row (i.e. diagonal from start of while loop)
+                            col_counter_B +=1
+                            next_col_search_term = "X" + str(col_counter_B)
+                            print(f"next_col_search_term {next_col_search_term}")
+                            next_col_in_next_row_slice_B = [val for val in next_row_slice_B if next_col_search_term in val]
+                            print(f"next_col_in_next_row_slice_B ANY {next_col_in_next_row_slice_B}")
+                            # diagonal match found, increase streak
+                            if len(next_col_in_next_row_slice_B) !=0:
+                                diag_streak +=1
+                                print(f"diag streak 1+ = {diag_streak}")
+                                # check if diagonal streak meets win requirement, check if last move
+                                if diag_streak == target:
+                                    print("checking player 2 win")
+                                    player="B"
+                                    last_move = next_col_in_next_row_slice_B[0]
+                                    check_last_move(player, last_move, last_move_id)
+                                # if match found but not win reverts to start of while loop
+                            
+                            # if no col match, reset diag streak and exit while loop
+                            else:
+                                diag_streak = 0 
+                                print(f"diag streak reset = {diag_streak}")
+
+                        # no match in next row, reset diag streak and exit while loop
+                        else:
+                            diag_streak = 0
+                            print(f"diag streak reset = {diag_streak}")
+                
+                # no col match in first row        
+                else:
+                    print(f"NO col_in_row_slice_B No Match Found {col_in_row_slice_B}")
+                    diag_streak = 0
+                    col_counter_B +=1 # col not found in row, loop on next col (within same row)
+        
+        # no match found in first row
+        else:
+            row_counter_B += 1 # no player matches in row slice move to next row
+
+
 def check_consecutive(values, values_orig, target, check_type):
     """ Checks potential winning row / column to determine complete """
     sorted_values = sorted(values)
-
+    print("checking consecutive")
     # Calculate increments between values
     current_score = 0
     highest_score = 0
@@ -341,6 +514,8 @@ def check_draw_or_incomplete(game_grid, rows, cols):
 
 def check_last_move(player, last_move, last_move_id):
     """ Check players last move from wining line against last turn played """
+    print(f"last_move {last_move}")
+    print(f"last_move_id {last_move_id}")
     if last_move == last_move_id:
 
         if player == "A":
